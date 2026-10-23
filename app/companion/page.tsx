@@ -24,8 +24,8 @@ export default async function CompanionPage() {
       caregiverLabel={getCaregiverDisplayName(caregiver)}
       unreadCount={messageOverview.unreadIncomingCount}
     >
-      <section className="card">
-        <Link className="list-row feature-row" href="/messages">
+      <section className="feature-grid">
+        <Link className="feature-card" href="/messages">
           <span className="feature-icon"><MessageCircle size={19} strokeWidth={1.8} /></span>
           <span className="row-main">
             <span className="row-title">双向留言</span>
@@ -36,7 +36,7 @@ export default async function CompanionPage() {
             <ChevronRight className="chevron" size={16} strokeWidth={2} />
           </span>
         </Link>
-        <Link className="list-row feature-row" href="/activity">
+        <Link className="feature-card" href="/activity">
           <span className="feature-icon olive"><MessagesSquare size={19} strokeWidth={1.8} /></span>
           <span className="row-main">
             <span className="row-title">陪伴动态</span>
@@ -44,7 +44,7 @@ export default async function CompanionPage() {
           </span>
           <ChevronRight className="chevron" size={16} strokeWidth={2} />
         </Link>
-        <div className="list-row feature-row feature-disabled">
+        <div className="feature-card wide feature-disabled">
           <span className="feature-icon muted"><Heart size={19} strokeWidth={1.8} /></span>
           <span className="row-main">
             <span className="row-title">家庭记忆册</span>

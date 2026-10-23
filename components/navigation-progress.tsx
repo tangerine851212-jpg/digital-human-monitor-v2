@@ -197,8 +197,8 @@ export function NavigationProgressProvider({
           visible ? "opacity-100" : "opacity-0"
         }`}
       >
-        <div aria-hidden="true" className="h-1 w-full bg-[rgba(36,27,20,0.08)]">
-          <div className="route-progress-bar h-full w-2/5 rounded-full bg-[linear-gradient(90deg,rgba(53,84,141,0.2),rgba(199,103,51,0.95),rgba(53,84,141,0.75))]" />
+        <div aria-hidden="true" className="h-1 w-full bg-[rgba(36,31,26,0.08)]">
+          <div className="route-progress-bar h-full w-2/5 rounded-full bg-[linear-gradient(90deg,rgba(185,84,46,0.15),rgba(185,84,46,0.95),rgba(98,116,86,0.75))]" />
         </div>
         {visible ? <span className="sr-only">页面正在加载</span> : null}
       </div>

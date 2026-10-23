@@ -7,8 +7,8 @@ export default function manifest(): MetadataRoute.Manifest {
     description: "随时了解长辈的近况，查看留言、使用动态，给长辈写问候。",
     start_url: "/",
     display: "standalone",
-    background_color: "#f6eee1",
-    theme_color: "#FBFAF6",
+    background_color: "#f7f1e8",
+    theme_color: "#f7f1e8",
     lang: "zh-CN",
     categories: ["utilities", "lifestyle", "health"],
     icons: [

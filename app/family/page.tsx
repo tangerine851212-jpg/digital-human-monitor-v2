@@ -8,11 +8,6 @@ import { getCaregiverDisplayName } from "@/lib/session";
 export const dynamic = "force-dynamic";
 
 const roleLabel = { ADMIN: "管理员", CAREGIVER: "照护成员", CARING: "关怀成员" } as const;
-const avatarStyles = [
-  { background: "rgba(192,90,30,.1)", color: "var(--accent)" },
-  { background: "rgba(101,118,90,.12)", color: "var(--olive)" },
-  { background: "rgba(33,30,26,.06)", color: "var(--muted)" },
-];
 
 export default async function FamilyPage() {
   const caregiver = await requireCaregiverSession("/family");
@@ -31,9 +26,9 @@ export default async function FamilyPage() {
 
       <section>
         <div className="section-title"><h2>家庭动态</h2></div>
-        <div className="card">
+        <div className="feed-list">
           {workspace.posts.length ? workspace.posts.map((post) => (
-            <article key={post.id} className="timeline-item">
+            <article key={post.id} className="feed-card">
               <div className="timeline-top">
                 {post.elderAuthored ? `${workspace.elderProfile.preferredName}通过安智伴说` : post.author?.nickname || post.author?.username || "家里人"}
                 <span className="timeline-time">{formatDateTime(post.createdAt)}</span>
@@ -49,12 +44,12 @@ export default async function FamilyPage() {
 
       <section>
         <div className="section-title"><h2>家庭成员</h2></div>
-        <div className="card">
+        <div className="member-grid">
           {workspace.memberships.map((member, index) => {
             const name = member.caregiver.nickname || member.caregiver.username || "家庭成员";
             return (
-              <div key={member.id} className="list-row" style={{ alignItems: "center" }}>
-                <span className="member-avatar" style={avatarStyles[index % avatarStyles.length]}>{name.slice(-1)}</span>
+              <div key={member.id} className="member-card">
+                <span className={`member-avatar tone-${index % 3}`}>{name.slice(-1)}</span>
                 <span className="row-main">
                   <span className="row-title">{name}</span>
                   <span className="row-meta">

@@ -20,9 +20,9 @@ export default async function MessageDetailPage({ params }: PageProps<"/messages
     <PanelShell currentPath="/messages" title={`留言 #${message.publicId}`} caregiverLabel={getCaregiverDisplayName(caregiver)} backHref="/messages">
       <article className="card card-pad" style={{ paddingTop: 16, paddingBottom: 16 }}>
         <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-          <span className="tag" style={{ color: "var(--muted)", background: "rgba(32,29,26,.06)" }}>{getMessageDirectionLabel(message.direction)}</span>
+          <span className="tag neutral">{getMessageDirectionLabel(message.direction)}</span>
           {message.importance !== "NORMAL" ? <span className="tag">重要</span> : null}
-          <span className="tag" style={{ color: "var(--muted)", background: "rgba(32,29,26,.06)" }}>{getMessageStatusLabel(message)}</span>
+          <span className="tag neutral">{getMessageStatusLabel(message)}</span>
         </div>
         <p style={{ margin: "12px 0 0", fontSize: 17, lineHeight: 1.65 }}>{message.content}</p>
       </article>

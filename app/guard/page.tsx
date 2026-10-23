@@ -41,7 +41,7 @@ export default async function GuardPage() {
             <span className="elder-name">
               {elder.preferredName}
               <span className={`dot ${isOnline ? "online" : "offline"}`} style={{ marginTop: 0 }} />
-              <span className="online-label" style={{ color: isOnline ? "var(--success)" : "var(--muted-light)" }}>
+              <span className="online-label" style={{ color: isOnline ? "var(--success-ink)" : "var(--muted-light)" }}>
                 {isOnline ? "在线" : "离线"}
               </span>
             </span>
@@ -53,18 +53,18 @@ export default async function GuardPage() {
         <CheckInButton deviceUuid={device.deviceUuid} />
       </section>
 
-      <section className="stats" style={{ gridTemplateColumns: "repeat(4, 1fr)" }}>
-        <div className="stat accent"><strong>{openAlerts.length}</strong><span>待处理提醒</span></div>
-        <div className="stat"><strong>{doneDoses}/{todayDoses.length}</strong><span>今日用药</span></div>
-        <div className="stat"><strong>{openTasks.length}</strong><span>照护事项</span></div>
-        <div className="stat"><strong>{pendingCheckIns.length}</strong><span>待报平安</span></div>
+      <section className="metric-grid">
+        <div className="metric-card accent"><strong>{openAlerts.length}</strong><span>待处理提醒</span></div>
+        <div className="metric-card"><strong>{doneDoses}/{todayDoses.length}</strong><span>今日用药</span></div>
+        <div className="metric-card"><strong>{openTasks.length}</strong><span>照护事项</span></div>
+        <div className="metric-card"><strong>{pendingCheckIns.length}</strong><span>待报平安</span></div>
       </section>
 
       <section>
         <div className="section-title"><h2>风险提醒</h2><span>人工确认后再处置</span></div>
-        <div className="card">
+        <div className="alert-list">
           {workspace.alerts.length ? workspace.alerts.map((alert) => (
-            <article id={`alert-${alert.id}`} key={alert.id} className="timeline-item">
+            <article id={`alert-${alert.id}`} key={alert.id} className={`alert-card${alert.level === "RED" ? " red" : ""}`}>
               <div className="timeline-top">
                 <span className={`alert-title${alert.level === "RED" ? " red" : ""}`}>
                   <AlertTriangle size={15} strokeWidth={2} />{alert.title}
