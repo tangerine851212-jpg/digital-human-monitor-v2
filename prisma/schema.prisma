@@ -1,0 +1,515 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum MessageDirection {
+  ELDER_TO_FAMILY
+  FAMILY_TO_ELDER
+}
+
+enum MessageImportance {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+enum MessageStatus {
+  PENDING
+  DELIVERED
+  READ
+}
+
+enum ConversationRole {
+  USER
+  ASSISTANT
+  TOOL
+}
+
+enum UsageEventType {
+  APP_OPEN
+  SETTINGS_OPENED
+  AI_SESSION_STARTED
+  AI_SESSION_ENDED
+  CAMERA_ENABLED
+  CAMERA_DISABLED
+  TOOL_CALLED
+}
+
+enum ToolCallStatus {
+  SUCCESS
+  FAILURE
+}
+
+enum FamilyRole {
+  ADMIN
+  CAREGIVER
+  CARING
+}
+
+enum MembershipStatus {
+  ACTIVE
+  REMOVED
+}
+
+enum InvitationStatus {
+  PENDING
+  ACCEPTED
+  EXPIRED
+  REVOKED
+}
+
+enum ContentVisibility {
+  ELDER_ONLY
+  FAMILY_ONLY
+  FAMILY_AND_ELDER
+}
+
+enum MemoPriority {
+  NORMAL
+  IMPORTANT
+  PINNED
+}
+
+enum CareTaskStatus {
+  OPEN
+  CLAIMED
+  COMPLETED
+  CANCELLED
+}
+
+enum MedicationSource {
+  PRESCRIPTION
+  PACKAGE_LABEL
+  FAMILY_ENTRY
+}
+
+enum MedicationDoseStatus {
+  SCHEDULED
+  REMINDING
+  TAKEN
+  SNOOZED
+  SKIPPED
+  MISSED
+  NEEDS_FAMILY_CONFIRMATION
+}
+
+enum CheckInStatus {
+  PENDING
+  SAFE
+  NEEDS_CONTACT
+  DECLINED
+  EXPIRED
+}
+
+enum AlertLevel {
+  RED
+  ORANGE
+  YELLOW
+  BLUE
+}
+
+enum AlertStatus {
+  OPEN
+  ACKNOWLEDGED
+  RESOLVED
+  DISMISSED
+}
+
+model CaregiverAccount {
+  id                 String             @id @default(cuid())
+  username           String?            @unique
+  passwordHash       String?
+  nickname           String?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  sessions           CaregiverSession[]
+  bindings           DeviceBinding[]
+  messages           FamilyMessage[]
+  pushSubscriptions  PushSubscription[]
+  createdCircles     FamilyCircle[]     @relation("CircleCreator")
+  memberships        FamilyMembership[]
+  posts              FamilyPost[]
+  memos              FamilyMemo[]
+  createdTasks       CareTask[]         @relation("TaskCreator")
+  assignedTasks      CareTask[]         @relation("TaskAssignee")
+  medicationPlans    MedicationPlan[]
+  requestedCheckIns  CheckInRequest[]
+  claimedAlerts      SafetyAlert[]      @relation("AlertClaimer")
+  auditLogs          AuditLog[]
+  createdInvitations FamilyInvitation[] @relation("InvitationCreator")
+}
+
+model CaregiverSession {
+  id           String           @id @default(cuid())
+  caregiverId  String
+  sessionToken String           @unique
+  userAgent    String?
+  lastSeenAt   DateTime?
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  caregiver    CaregiverAccount @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+
+  @@index([caregiverId, updatedAt(sort: Desc)])
+}
+
+model ElderDevice {
+  id                String             @id @default(cuid())
+  deviceUuid        String             @unique
+  displayName       String?
+  appVersion        String?
+  lastSeenAt        DateTime?
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  bindings          DeviceBinding[]
+  messages          FamilyMessage[]
+  conversationTurns ConversationTurn[]
+  usageEvents       UsageEvent[]
+  toolCalls         ToolCallLog[]
+  deviceTokenHash   String?
+  elderProfile      ElderProfile?
+}
+
+model ElderProfile {
+  id             String          @id @default(cuid())
+  elderDeviceId  String          @unique
+  preferredName  String
+  timezone       String          @default("Asia/Shanghai")
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  elderDevice    ElderDevice     @relation(fields: [elderDeviceId], references: [id], onDelete: Cascade)
+  familyCircle   FamilyCircle?
+  consentSetting ConsentSetting?
+}
+
+model FamilyCircle {
+  id              String             @id @default(cuid())
+  elderProfileId  String             @unique
+  createdById     String
+  name            String
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  elderProfile    ElderProfile       @relation(fields: [elderProfileId], references: [id], onDelete: Cascade)
+  createdBy       CaregiverAccount   @relation("CircleCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  memberships     FamilyMembership[]
+  posts           FamilyPost[]
+  memos           FamilyMemo[]
+  tasks           CareTask[]
+  medicationPlans MedicationPlan[]
+  checkIns        CheckInRequest[]
+  safetySignals   SafetySignal[]
+  alerts          SafetyAlert[]
+  memories        FamilyMemory[]
+  auditLogs       AuditLog[]
+  invitations     FamilyInvitation[]
+}
+
+model FamilyInvitation {
+  id             String           @id @default(cuid())
+  familyCircleId String
+  createdById    String
+  tokenHash      String           @unique
+  role           FamilyRole       @default(CARING)
+  relationLabel  String?
+  status         InvitationStatus @default(PENDING)
+  expiresAt      DateTime
+  acceptedAt     DateTime?
+  createdAt      DateTime         @default(now())
+  familyCircle   FamilyCircle     @relation(fields: [familyCircleId], references: [id], onDelete: Cascade)
+  createdBy      CaregiverAccount @relation("InvitationCreator", fields: [createdById], references: [id], onDelete: Cascade)
+
+  @@index([familyCircleId, status, expiresAt])
+}
+
+model FamilyMembership {
+  id             String           @id @default(cuid())
+  familyCircleId String
+  caregiverId    String
+  role           FamilyRole       @default(CARING)
+  relationLabel  String?
+  status         MembershipStatus @default(ACTIVE)
+  emergencyPush  Boolean          @default(true)
+  routinePush    Boolean          @default(true)
+  dutyOrder      Int?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  familyCircle   FamilyCircle     @relation(fields: [familyCircleId], references: [id], onDelete: Cascade)
+  caregiver      CaregiverAccount @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+
+  @@unique([familyCircleId, caregiverId])
+  @@index([caregiverId, status])
+}
+
+model FamilyPost {
+  id             String            @id @default(cuid())
+  familyCircleId String
+  authorId       String?
+  content        String
+  visibility     ContentVisibility @default(FAMILY_AND_ELDER)
+  elderAuthored  Boolean           @default(false)
+  pinned         Boolean           @default(false)
+  deliveredAt    DateTime?
+  readAt         DateTime?
+  createdAt      DateTime          @default(now())
+  familyCircle   FamilyCircle      @relation(fields: [familyCircleId], references: [id], onDelete: Cascade)
+  author         CaregiverAccount? @relation(fields: [authorId], references: [id], onDelete: SetNull)
+
+  @@index([familyCircleId, createdAt(sort: Desc)])
+}
+
+model FamilyMemo {
+  id             String            @id @default(cuid())
+  familyCircleId String
+  authorId       String
+  title          String
+  content        String
+  priority       MemoPriority      @default(NORMAL)
+  visibility     ContentVisibility @default(FAMILY_AND_ELDER)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  familyCircle   FamilyCircle      @relation(fields: [familyCircleId], references: [id], onDelete: Cascade)
+  author         CaregiverAccount  @relation(fields: [authorId], references: [id], onDelete: Restrict)
+
+  @@index([familyCircleId, priority, updatedAt(sort: Desc)])
+}
+
+model CareTask {
+  id             String            @id @default(cuid())
+  familyCircleId String
+  createdById    String
+  assignedToId   String?
+  title          String
+  description    String?
+  dueAt          DateTime?
+  status         CareTaskStatus    @default(OPEN)
+  completedAt    DateTime?
+  completionNote String?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  familyCircle   FamilyCircle      @relation(fields: [familyCircleId], references: [id], onDelete: Cascade)
+  createdBy      CaregiverAccount  @relation("TaskCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  assignedTo     CaregiverAccount? @relation("TaskAssignee", fields: [assignedToId], references: [id], onDelete: SetNull)
+
+  @@index([familyCircleId, status, dueAt])
+}
+
+model MedicationPlan {
+  id             String           @id @default(cuid())
+  familyCircleId String
+  createdById    String
+  name           String
+  dosage         String
+  instructions   String?
+  timesJson      String
+  source         MedicationSource
+  startDate      DateTime
+  endDate        DateTime?
+  stockCount     Int?
+  active         Boolean          @default(true)
+  pausedReason   String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  familyCircle   FamilyCircle     @relation(fields: [familyCircleId], references: [id], onDelete: Cascade)
+  createdBy      CaregiverAccount @relation(fields: [createdById], references: [id], onDelete: Restrict)
+  doses          MedicationDose[]
+
+  @@index([familyCircleId, active])
+}
+
+model MedicationDose {
+  id               String               @id @default(cuid())
+  medicationPlanId String
+  scheduledFor     DateTime
+  status           MedicationDoseStatus @default(SCHEDULED)
+  respondedAt      DateTime?
+  snoozedUntil     DateTime?
+  note             String?
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  medicationPlan   MedicationPlan       @relation(fields: [medicationPlanId], references: [id], onDelete: Cascade)
+
+  @@unique([medicationPlanId, scheduledFor])
+  @@index([scheduledFor, status])
+}
+
+model CheckInRequest {
+  id             String           @id @default(cuid())
+  familyCircleId String
+  requestedById  String
+  prompt         String?
+  dueAt          DateTime?
+  status         CheckInStatus    @default(PENDING)
+  responseText   String?
+  respondedAt    DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  familyCircle   FamilyCircle     @relation(fields: [familyCircleId], references: [id], onDelete: Cascade)
+  requestedBy    CaregiverAccount @relation(fields: [requestedById], references: [id], onDelete: Restrict)
+
+  @@index([familyCircleId, status, createdAt(sort: Desc)])
+}
+
+model SafetySignal {
+  id             String       @id @default(cuid())
+  familyCircleId String
+  category       String
+  summary        String
+  confidence     Float?
+  contextText    String?
+  createdAt      DateTime     @default(now())
+  familyCircle   FamilyCircle @relation(fields: [familyCircleId], references: [id], onDelete: Cascade)
+  alert          SafetyAlert?
+
+  @@index([familyCircleId, category, createdAt(sort: Desc)])
+}
+
+model SafetyAlert {
+  id             String            @id @default(cuid())
+  familyCircleId String
+  safetySignalId String            @unique
+  claimedById    String?
+  level          AlertLevel
+  status         AlertStatus       @default(OPEN)
+  title          String
+  summary        String
+  resolutionNote String?
+  claimedAt      DateTime?
+  resolvedAt     DateTime?
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  familyCircle   FamilyCircle      @relation(fields: [familyCircleId], references: [id], onDelete: Cascade)
+  safetySignal   SafetySignal      @relation(fields: [safetySignalId], references: [id], onDelete: Cascade)
+  claimedBy      CaregiverAccount? @relation("AlertClaimer", fields: [claimedById], references: [id], onDelete: SetNull)
+
+  @@index([familyCircleId, status, createdAt(sort: Desc)])
+}
+
+model FamilyMemory {
+  id             String       @id @default(cuid())
+  familyCircleId String
+  title          String
+  story          String
+  mediaUrl       String?
+  occurredAt     DateTime?
+  createdAt      DateTime     @default(now())
+  familyCircle   FamilyCircle @relation(fields: [familyCircleId], references: [id], onDelete: Cascade)
+}
+
+model ConsentSetting {
+  id               String       @id @default(cuid())
+  elderProfileId   String       @unique
+  shareTranscripts Boolean      @default(true)
+  shareRawAudio    Boolean      @default(false)
+  updatedAt        DateTime     @updatedAt
+  elderProfile     ElderProfile @relation(fields: [elderProfileId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id             String            @id @default(cuid())
+  familyCircleId String
+  actorId        String?
+  action         String
+  entityType     String
+  entityId       String?
+  detailJson     String?
+  createdAt      DateTime          @default(now())
+  familyCircle   FamilyCircle      @relation(fields: [familyCircleId], references: [id], onDelete: Cascade)
+  actor          CaregiverAccount? @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([familyCircleId, createdAt(sort: Desc)])
+}
+
+model DeviceBinding {
+  id            String           @id @default(cuid())
+  caregiverId   String
+  elderDeviceId String
+  alias         String?
+  createdAt     DateTime         @default(now())
+  caregiver     CaregiverAccount @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+  elderDevice   ElderDevice      @relation(fields: [elderDeviceId], references: [id], onDelete: Cascade)
+
+  @@unique([caregiverId, elderDeviceId])
+  @@index([elderDeviceId, createdAt])
+}
+
+model FamilyMessage {
+  id                String            @id @default(cuid())
+  publicId          Int               @unique @default(autoincrement())
+  elderDeviceId     String
+  caregiverId       String?
+  direction         MessageDirection
+  content           String
+  recipientRelation String?
+  importance        MessageImportance @default(NORMAL)
+  status            MessageStatus     @default(PENDING)
+  source            String?
+  createdAt         DateTime          @default(now())
+  deliveredAt       DateTime?
+  readAt            DateTime?
+  elderDevice       ElderDevice       @relation(fields: [elderDeviceId], references: [id], onDelete: Cascade)
+  caregiver         CaregiverAccount? @relation(fields: [caregiverId], references: [id], onDelete: SetNull)
+
+  @@index([elderDeviceId, createdAt(sort: Desc)])
+  @@index([direction, status, createdAt(sort: Desc)])
+}
+
+model PushSubscription {
+  id             String           @id @default(cuid())
+  caregiverId    String
+  endpoint       String           @unique
+  p256dh         String
+  auth           String
+  expirationTime DateTime?
+  userAgent      String?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  caregiver      CaregiverAccount @relation(fields: [caregiverId], references: [id], onDelete: Cascade)
+
+  @@index([caregiverId, updatedAt(sort: Desc)])
+}
+
+model ConversationTurn {
+  id            String           @id @default(cuid())
+  elderDeviceId String
+  sessionId     String?
+  role          ConversationRole
+  content       String
+  metaJson      String?
+  createdAt     DateTime         @default(now())
+  elderDevice   ElderDevice      @relation(fields: [elderDeviceId], references: [id], onDelete: Cascade)
+
+  @@index([elderDeviceId, createdAt(sort: Desc)])
+  @@index([sessionId, createdAt])
+}
+
+model UsageEvent {
+  id            String         @id @default(cuid())
+  elderDeviceId String
+  eventType     UsageEventType
+  detailJson    String?
+  createdAt     DateTime       @default(now())
+  elderDevice   ElderDevice    @relation(fields: [elderDeviceId], references: [id], onDelete: Cascade)
+
+  @@index([elderDeviceId, createdAt(sort: Desc)])
+  @@index([eventType, createdAt(sort: Desc)])
+}
+
+model ToolCallLog {
+  id            String         @id @default(cuid())
+  elderDeviceId String
+  sessionId     String?
+  callId        String?
+  toolName      String
+  argumentsJson String
+  outputText    String?
+  status        ToolCallStatus
+  createdAt     DateTime       @default(now())
+  elderDevice   ElderDevice    @relation(fields: [elderDeviceId], references: [id], onDelete: Cascade)
+
+  @@index([elderDeviceId, createdAt(sort: Desc)])
+  @@index([toolName, createdAt(sort: Desc)])
+}

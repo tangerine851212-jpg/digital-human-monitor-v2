@@ -1,0 +1,2 @@
+ALTER TABLE "DeviceBinding"
+ADD COLUMN IF NOT EXISTS "alias" TEXT;
