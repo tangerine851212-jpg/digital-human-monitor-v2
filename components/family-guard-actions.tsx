@@ -19,7 +19,7 @@ function Notice({ text }: { text: string }) {
   return text ? <p className="form-notice">{text}</p> : null;
 }
 
-export function FamilyPostForm({ deviceUuid }: { deviceUuid: string }) {
+export function FamilyPostForm({ deviceUuid, elderName }: { deviceUuid: string; elderName: string }) {
   const router = useRouter();
   const [notice, setNotice] = useState("");
   const [busy, setBusy] = useState(false);
@@ -50,8 +50,8 @@ export function FamilyPostForm({ deviceUuid }: { deviceUuid: string }) {
       <textarea id="family-post-content" className="field" name="content" required maxLength={1000} placeholder="分享一句问候，或和家人同步今天的情况……" style={{ minHeight: 88 }} />
       <div className="form-grid publish" style={{ marginTop: 10 }}>
         <select className="field" name="visibility" defaultValue="FAMILY_AND_ELDER" aria-label="动态可见范围">
-          <option value="FAMILY_AND_ELDER">老人和全家可见</option>
-          <option value="ELDER_ONLY">只发给老人</option>
+          <option value="FAMILY_AND_ELDER">{elderName}和全家可见</option>
+          <option value="ELDER_ONLY">只发给{elderName}</option>
           <option value="FAMILY_ONLY">仅家庭内部</option>
         </select>
         <button className="btn primary" disabled={busy}>{busy ? "发布中" : "发布"}</button>
@@ -97,8 +97,8 @@ export function MemoForm({ deviceUuid }: { deviceUuid: string }) {
             <option value="PINNED">长期置顶</option>
           </select>
           <select className="field" name="visibility" aria-label="备忘可见范围">
-            <option value="FAMILY_AND_ELDER">可告诉老人</option>
-            <option value="FAMILY_ONLY">仅家人可见</option>
+            <option value="FAMILY_AND_ELDER">全员可见</option>
+            <option value="FAMILY_ONLY">仅照护者可见</option>
           </select>
           <button className="btn primary">保存</button>
         </div>
@@ -236,7 +236,7 @@ export function CheckInButton({ deviceUuid }: { deviceUuid: string }) {
 
   return (
     <div className="checkin-action">
-      <button className="btn primary block" onClick={() => void create()}><ShieldCheck size={16} strokeWidth={2} />请长辈报个平安</button>
+      <button className="btn primary block" onClick={() => void create()}><ShieldCheck size={16} strokeWidth={2} />请家人报个平安</button>
       <Notice text={notice} />
     </div>
   );
@@ -303,7 +303,7 @@ export function InviteMemberForm({ deviceUuid }: { deviceUuid: string }) {
     <form className="card card-pad" onSubmit={submit}>
       <div className="form-grid two">
         <span>
-          <label className="field-label" htmlFor="invite-relation">与长辈的关系</label>
+          <label className="field-label" htmlFor="invite-relation">与守护者的关系</label>
           <input id="invite-relation" className="field" name="relationLabel" placeholder="如：儿子" />
         </span>
         <span>

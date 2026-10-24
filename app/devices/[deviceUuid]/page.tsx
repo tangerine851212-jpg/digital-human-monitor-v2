@@ -24,7 +24,7 @@ export default async function DeviceDetailPage({ params, searchParams }: PagePro
       actions={<span className="row-meta" style={{ margin: 0 }}><span className="dot online" style={{ margin: 0 }} />{formatDateTime(binding.elderDevice.lastSeenAt)}</span>}>
       <section className="stats" style={{ gridTemplateColumns: "repeat(3,1fr)" }}>
         <div className="stat accent"><strong>{binding.elderUnreadCount}</strong><span>新留言</span></div>
-        <div className="stat"><strong>{binding.familyUnreadCount}</strong><span>待长辈听</span></div>
+        <div className="stat"><strong>{binding.familyUnreadCount}</strong><span>待对方听</span></div>
         <div className="stat"><strong>{binding.elderDevice._count.conversationTurns}</strong><span>陪伴对话</span></div>
       </section>
 
@@ -39,7 +39,7 @@ export default async function DeviceDetailPage({ params, searchParams }: PagePro
       <section className="card">
         {tab === "msg" ? (messages.length ? messages.map((message) => (
           <Link key={message.id} href={getMessageHref(message.publicId)} className="timeline-item" style={{ display: "block" }}>
-            <div className="timeline-top" style={{ color: message.direction === "FAMILY_TO_ELDER" ? "var(--accent)" : undefined }}>{message.direction === "FAMILY_TO_ELDER" ? "我发出的问候" : "长辈捎来的话"}<span className="timeline-time">{formatDateTime(message.createdAt)}</span></div>
+            <div className="timeline-top" style={{ color: message.direction === "FAMILY_TO_ELDER" ? "var(--accent)" : undefined }}>{message.direction === "FAMILY_TO_ELDER" ? "我发出的问候" : "对方捎来的话"}<span className="timeline-time">{formatDateTime(message.createdAt)}</span></div>
             <p className="timeline-body">{truncateText(message.content, 126)}</p>
           </Link>
         )) : <div className="empty">还没有留言。</div>) : tab === "chat" ? (binding.elderDevice.conversationTurns.length ? binding.elderDevice.conversationTurns.map((turn) => (

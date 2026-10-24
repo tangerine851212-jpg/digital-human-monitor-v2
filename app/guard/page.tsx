@@ -13,9 +13,12 @@ export default async function GuardPage() {
   const caregiver = await requireCaregiverSession("/guard");
   const workspace = await requireFamilyWorkspace(caregiver.id);
   const elder = workspace.elderProfile;
+  const displayName = elder.preferredName.trim() || "家人";
   const device = elder.elderDevice;
   const lastSeenAt = device.lastSeenAt;
   const isOnline = Boolean(lastSeenAt);
+  const personalizeAlertText = (text: string) =>
+    text.replaceAll("长辈", displayName).replaceAll("老人", displayName);
   const openAlerts = workspace.alerts.filter((alert) => alert.status === "OPEN" || alert.status === "ACKNOWLEDGED");
   const today = new Date().toDateString();
   const todayDoses = workspace.medicationPlans.flatMap((plan) => plan.doses).filter((dose) => dose.scheduledFor.toDateString() === today);
@@ -30,16 +33,16 @@ export default async function GuardPage() {
     <PanelShell
       currentPath="/guard"
       title="家庭守护"
-      description={`${elder.preferredName} · 风险线索不是医疗诊断`}
+      description={`${displayName} · 风险线索不是医疗诊断`}
       caregiverLabel={getCaregiverDisplayName(caregiver)}
       caregiverId={caregiver.id}
     >
       <section className="elder-status">
         <div className="elder-status-main">
-          <span className="elder-avatar">{elder.preferredName.slice(0, 1)}</span>
+          <span className="elder-avatar">{displayName.slice(0, 1)}</span>
           <span className="row-main">
             <span className="elder-name">
-              {elder.preferredName}
+              {displayName}
               <span className={`dot ${isOnline ? "online" : "offline"}`} style={{ marginTop: 0 }} />
               <span className="online-label" style={{ color: isOnline ? "var(--success-ink)" : "var(--muted-light)" }}>
                 {isOnline ? "在线" : "离线"}
@@ -55,8 +58,8 @@ export default async function GuardPage() {
 
       <section className="metric-grid">
         <div className="metric-card accent"><strong>{openAlerts.length}</strong><span>待处理提醒</span></div>
-        <div className="metric-card"><strong>{doneDoses}/{todayDoses.length}</strong><span>今日用药</span></div>
-        <div className="metric-card"><strong>{openTasks.length}</strong><span>照护事项</span></div>
+        <div className="metric-card"><strong>{doneDoses}/{todayDoses.length}</strong><span>今日提醒</span></div>
+        <div className="metric-card"><strong>{openTasks.length}</strong><span>我的任务</span></div>
         <div className="metric-card"><strong>{pendingCheckIns.length}</strong><span>待报平安</span></div>
       </section>
 
@@ -67,11 +70,11 @@ export default async function GuardPage() {
             <article id={`alert-${alert.id}`} key={alert.id} className={`alert-card${alert.level === "RED" ? " red" : ""}`}>
               <div className="timeline-top">
                 <span className={`alert-title${alert.level === "RED" ? " red" : ""}`}>
-                  <AlertTriangle size={15} strokeWidth={2} />{alert.title}
+                  <AlertTriangle size={15} strokeWidth={2} />{personalizeAlertText(alert.title)}
                 </span>
                 <span className="timeline-time">{formatDateTime(alert.createdAt)}</span>
               </div>
-              <p className="timeline-body">{alert.summary}</p>
+              <p className="timeline-body">{personalizeAlertText(alert.summary)}</p>
               <p className="row-meta">{alert.claimedBy ? `已由 ${alert.claimedBy.nickname || alert.claimedBy.username || "家人"} 接手` : "尚未认领"}</p>
               <AlertActions alertId={alert.id} status={alert.status} />
             </article>

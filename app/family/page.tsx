@@ -13,6 +13,7 @@ export default async function FamilyPage() {
   const caregiver = await requireCaregiverSession("/family");
   const workspace = await requireFamilyWorkspace(caregiver.id);
   const deviceUuid = workspace.elderProfile.elderDevice.deviceUuid;
+  const displayName = workspace.elderProfile.preferredName.trim() || "家人";
 
   return (
     <PanelShell
@@ -22,7 +23,7 @@ export default async function FamilyPage() {
       caregiverLabel={getCaregiverDisplayName(caregiver)}
       caregiverId={caregiver.id}
     >
-      <FamilyPostForm deviceUuid={deviceUuid} />
+      <FamilyPostForm deviceUuid={deviceUuid} elderName={displayName} />
 
       <section>
         <div className="section-title"><h2>家庭动态</h2></div>

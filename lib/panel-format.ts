@@ -113,5 +113,5 @@ export function getDeviceName(
   primaryName?: string | null,
   fallbackName?: string | null,
 ) {
-  return primaryName?.trim() || fallbackName?.trim() || "长辈的设备";
+  return primaryName?.trim() || fallbackName?.trim() || "陪伴设备";
 }

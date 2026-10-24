@@ -13,22 +13,53 @@ export default async function LoginPage({ searchParams }: PageProps<"/login">) {
   if (caregiver) redirect(redirectTo);
 
   return (
-    <main className="app-frame" style={{ display: "flex", alignItems: "center" }}>
-      <section style={{ width: "100%", padding: "28px 22px", display: "flex", flexDirection: "column", gap: 22 }}>
-        <div>
+    <main className="app-frame login-frame">
+      <header className="login-hero">
+        <div className="login-hero-copy">
+          <h1>
+            欢迎进入
+            <span>安智伴 家属端</span>
+          </h1>
+          <p>用同一个账号，继续守护家人的每一次对话。</p>
+        </div>
+
+        <div className="login-hero-visual" aria-hidden="true">
+          <span className="login-hero-halo" />
+          <div className="login-portrait">
+            <Image
+              src="/login-digital-human.jpg"
+              alt=""
+              fill
+              priority
+              sizes="(max-width: 430px) 45vw, 190px"
+              style={{ objectFit: "cover", objectPosition: "center top" }}
+            />
+          </div>
+          <span className="login-hero-dot login-hero-dot-one" />
+          <span className="login-hero-dot login-hero-dot-two" />
+        </div>
+      </header>
+
+      <section className="login-sheet">
+        <div className="login-sheet-head">
           <Image
             src="/app-icon.webp"
             alt="安智伴"
-            width={52}
-            height={52}
+            width={36}
+            height={36}
             priority
-            style={{ display: "block", borderRadius: 14 }}
+            style={{ display: "block", borderRadius: 11 }}
           />
-          <h1 style={{ margin: "16px 0 0", fontSize: 24, lineHeight: 1.35 }}>安智伴 家属端</h1>
-          <p style={{ margin: "8px 0 0", color: "var(--muted)", fontSize: 13.5, lineHeight: 1.7 }}>用同一个账号，在每一台设备上继续守护。长辈的留言、对话与动态都按账号归属。</p>
+          <div>
+            <h2>登录账号</h2>
+            <p>继续查看留言、陪伴动态和守护信息</p>
+          </div>
         </div>
+
         <AccountAuthForm redirectTo={redirectTo} />
-        <p className="muted-note" style={{ textAlign: "center" }}>登录后会自动回到刚才的页面，扫码和绑定流程不用重新开始。</p>
+        <p className="muted-note" style={{ textAlign: "center", marginTop: 4 }}>
+          登录后会自动回到刚才的页面，扫码和绑定流程不用重新开始。
+        </p>
       </section>
     </main>
   );

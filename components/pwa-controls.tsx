@@ -228,7 +228,7 @@ export function PwaControls({ deviceCount }: { deviceCount: number }) {
         <span className="settings-icon olive"><Smartphone size={17} strokeWidth={1.8} /></span>
         <span className="row-main">
           <span className="row-title">设备管理</span>
-          <span className="row-meta">{deviceCount > 0 ? `已连接 ${deviceCount} 台长辈设备` : "绑定长辈的安智伴设备"}</span>
+          <span className="row-meta">{deviceCount > 0 ? `已连接 ${deviceCount} 台设备` : "绑定安智伴设备"}</span>
         </span>
         <ChevronRight className="chevron" size={16} strokeWidth={2} />
       </Link>

@@ -17,7 +17,7 @@ export function BindDeviceForm() {
     event.preventDefault();
 
     if (!rawCode.trim()) {
-      setNotice("请先粘贴长辈手机上的设备码。\n");
+      setNotice("请先粘贴设备码。\n");
       return;
     }
 
@@ -37,7 +37,7 @@ export function BindDeviceForm() {
         <input
           value={rawCode}
           onChange={(event) => setRawCode(event.target.value)}
-          placeholder="粘贴长辈屏幕下方的设备码"
+          placeholder="粘贴设备屏幕下方的设备码"
           className="field"
           style={{ height: 36, flex: 1, minWidth: 0 }}
         />
@@ -105,7 +105,7 @@ export function SendMessageForm({ deviceUuid }: SendMessageFormProps) {
         throw new Error(payload?.error || "留言发送失败，请稍后再试。");
       }
 
-      setNotice("留言已发出，长辈下次使用时就能看到。\n");
+      setNotice("留言已发出，对方下次使用时就能看到。\n");
       setCreatedMessagePublicId(
         typeof payload?.publicId === "number" ? payload.publicId : null,
       );
@@ -127,7 +127,7 @@ export function SendMessageForm({ deviceUuid }: SendMessageFormProps) {
   return (
     <form className="card card-pad" onSubmit={handleSubmit}>
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-        <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>给长辈留言</h4>
+        <h4 style={{ margin: 0, fontSize: 13, fontWeight: 600 }}>给对方留言</h4>
         <select
           value={importance}
           onChange={(event) => setImportance(event.target.value)}

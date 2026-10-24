@@ -16,7 +16,7 @@ export default async function CarePage({ searchParams }: PageProps<"/care">) {
   const deviceUuid = workspace.elderProfile.elderDevice.deviceUuid;
 
   return (
-    <PanelShell currentPath="/care" title="共同照护" description="家人分工、老人确认、结果共享" caregiverLabel={getCaregiverDisplayName(caregiver)} caregiverId={caregiver.id}>
+    <PanelShell currentPath="/care" title="共同照护" description="家人分工、结果共享" caregiverLabel={getCaregiverDisplayName(caregiver)} caregiverId={caregiver.id}>
       <div className="segment">
         <Link className={tab === "tasks" ? "active" : ""} href="/care?tab=tasks">任务</Link>
         <Link className={tab === "medications" ? "active" : ""} href="/care?tab=medications">用药</Link>
@@ -49,7 +49,7 @@ export default async function CarePage({ searchParams }: PageProps<"/care">) {
                 <article className="feed-card" key={memo.id}>
                   <div className="timeline-top strong">{memo.title}<span className="tag">{memo.priority === "PINNED" ? "长期置顶" : memo.priority === "IMPORTANT" ? "重要" : "普通"}</span></div>
                   <p className="timeline-body">{memo.content}</p>
-                  <p className="row-meta">{memo.visibility === "FAMILY_ONLY" ? "仅家人可见" : "可由数字人告诉长辈"}</p>
+                  <p className="row-meta">{memo.visibility === "FAMILY_ONLY" ? "仅照护者可见" : "全员可见"}</p>
                 </article>
               )) : <div className="empty">还没有家庭备忘。</div>}
             </div>
@@ -59,7 +59,7 @@ export default async function CarePage({ searchParams }: PageProps<"/care">) {
         <>
           <TaskForm deviceUuid={deviceUuid} />
           <section>
-            <div className="section-title"><h2>照护交接</h2><span>认领后全家可见</span></div>
+            <div className="section-title"><h2>任务交接</h2><span>认领后全家可见</span></div>
             <div className="feed-list">
               {workspace.tasks.length ? workspace.tasks.map((task) => (
                 <article className="feed-card" key={task.id}>

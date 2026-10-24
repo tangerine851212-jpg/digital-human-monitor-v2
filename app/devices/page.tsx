@@ -32,19 +32,19 @@ export default async function DevicesPage() {
             {binding.elderUnreadCount > 0 ? <span className="nav-badge" style={{ position: "static" }}>{binding.elderUnreadCount}</span> : null}
             <ChevronRight size={14} color="var(--muted-light)" />
           </Link>
-        )) : <div className="empty">还没有连接设备，扫描长辈屏幕上的二维码即可添加。</div>}
+        )) : <div className="empty">还没有连接设备，扫描陪伴屏上的二维码即可添加。</div>}
       </section>
 
       <BindDeviceForm />
 
       <details className="card">
         <summary className="list-row" style={{ alignItems: "center", fontSize: 13, fontWeight: 600, listStyle: "none" }}>
-          <span style={{ flex: 1 }}>如何连接长辈的设备？</span><span className="row-meta" style={{ margin: 0 }}>展开</span>
+          <span style={{ flex: 1 }}>如何连接设备？</span><span className="row-meta" style={{ margin: 0 }}>展开</span>
         </summary>
         <div className="card-pad" style={{ borderTop: "1px solid var(--line)", color: "var(--muted)", fontSize: 12.5, lineHeight: 1.7 }}>
-          <p>1. 让长辈打开陪伴屏上的「家人连接」页面。</p>
+          <p>1. 打开陪伴屏上的「家人连接」页面。</p>
           <p>2. 扫描二维码，或把设备码粘贴到上方输入框。</p>
-          <p>3. 连接后即可收到长辈的留言、对话与使用动态。</p>
+          <p>3. 连接后即可收到留言、对话与使用动态。</p>
         </div>
       </details>
     </PanelShell>
