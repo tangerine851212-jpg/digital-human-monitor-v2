@@ -142,6 +142,7 @@ model CaregiverAccount {
   claimedAlerts      SafetyAlert[]      @relation("AlertClaimer")
   auditLogs          AuditLog[]
   createdInvitations FamilyInvitation[] @relation("InvitationCreator")
+  generatedWellbeingReports WellbeingReport[] @relation("WellbeingReportGenerator")
 }
 
 model CaregiverSession {
@@ -172,6 +173,7 @@ model ElderDevice {
   toolCalls         ToolCallLog[]
   deviceTokenHash   String?
   elderProfile      ElderProfile?
+  wellbeingReports  WellbeingReport[]
 }
 
 model ElderProfile {
@@ -206,6 +208,7 @@ model FamilyCircle {
   memories        FamilyMemory[]
   auditLogs       AuditLog[]
   invitations     FamilyInvitation[]
+  wellbeingReports WellbeingReport[]
 }
 
 model FamilyInvitation {
@@ -512,4 +515,25 @@ model ToolCallLog {
 
   @@index([elderDeviceId, createdAt(sort: Desc)])
   @@index([toolName, createdAt(sort: Desc)])
+}
+
+model WellbeingReport {
+  id              String           @id @default(cuid())
+  elderDeviceId   String
+  familyCircleId  String
+  generatedById   String?
+  periodStart     DateTime
+  periodEnd       DateTime
+  contentJson     String
+  riskLevel       String           @default("UNKNOWN")
+  sourceTurnCount Int              @default(0)
+  userTurnCount   Int              @default(0)
+  model           String?
+  createdAt       DateTime         @default(now())
+  elderDevice     ElderDevice      @relation(fields: [elderDeviceId], references: [id], onDelete: Cascade)
+  familyCircle    FamilyCircle     @relation(fields: [familyCircleId], references: [id], onDelete: Cascade)
+  generatedBy     CaregiverAccount? @relation("WellbeingReportGenerator", fields: [generatedById], references: [id], onDelete: SetNull)
+
+  @@index([elderDeviceId, createdAt(sort: Desc)])
+  @@index([familyCircleId, createdAt(sort: Desc)])
 }

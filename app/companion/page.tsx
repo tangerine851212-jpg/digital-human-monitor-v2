@@ -1,11 +1,13 @@
-import { ChevronRight, Heart, MessageCircle, MessagesSquare } from "lucide-react";
+import { ChevronRight, FileText, Heart, MessageCircle, MessagesSquare } from "lucide-react";
 import Link from "next/link";
 
 import { PanelShell } from "@/components/panel-shell";
 import { getCaregiverMessages } from "@/lib/caregiver-panel";
 import { requireFamilyWorkspace } from "@/lib/family-page";
+import { formatDateTime } from "@/lib/panel-format";
 import { requireCaregiverSession } from "@/lib/page-auth";
 import { getCaregiverDisplayName } from "@/lib/session";
+import { getLatestWellbeingReport } from "@/lib/wellbeing-report";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +17,9 @@ export default async function CompanionPage() {
     requireFamilyWorkspace(caregiver.id),
     getCaregiverMessages(caregiver.id),
   ]);
+  const latestReport = await getLatestWellbeingReport(
+    workspace.elderProfile.elderDeviceId,
+  );
 
   return (
     <PanelShell
@@ -29,7 +34,7 @@ export default async function CompanionPage() {
           <span className="feature-icon"><MessageCircle size={19} strokeWidth={1.8} /></span>
           <span className="row-main">
             <span className="row-title">双向留言</span>
-            <span className="row-meta">家人问候由数字人口播，长辈口述实时送达</span>
+            <span className="row-meta">家人问候由数字人转达，对方的回应会实时同步</span>
           </span>
           <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
             {messageOverview.unreadIncomingCount > 0 ? <span className="count-badge">{messageOverview.unreadIncomingCount}</span> : null}
@@ -44,11 +49,23 @@ export default async function CompanionPage() {
           </span>
           <ChevronRight className="chevron" size={16} strokeWidth={2} />
         </Link>
+        <Link className="feature-card wide" href="/companion/reports">
+          <span className="feature-icon"><FileText size={19} strokeWidth={1.8} /></span>
+          <span className="row-main">
+            <span className="row-title">AI 陪伴观察周报</span>
+            <span className="row-meta">
+              {latestReport
+                ? `最近生成：${formatDateTime(latestReport.createdAt)}`
+                : "基于近 7 天对话生成非诊断性回顾"}
+            </span>
+          </span>
+          <ChevronRight className="chevron" size={16} strokeWidth={2} />
+        </Link>
         <div className="feature-card wide feature-disabled">
           <span className="feature-icon muted"><Heart size={19} strokeWidth={1.8} /></span>
           <span className="row-main">
             <span className="row-title">家庭记忆册</span>
-            <span className="row-meta">收藏长辈的语音与照片故事</span>
+            <span className="row-meta">收藏家人的语音与照片故事</span>
           </span>
           <span className="member-role">即将上线</span>
         </div>
