@@ -45,7 +45,7 @@ async function writeMaskableWebp(size, outputPath) {
       width: size,
       height: size,
       channels: 4,
-      background: "#FBFAF6",
+      background: "#E7F3FD",
     },
   })
     .composite([
